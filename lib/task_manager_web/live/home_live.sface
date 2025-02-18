@@ -1,0 +1,8 @@
+<Table items={task <- @tasks} selected={nil}>
+    <Column name="title" label="Title">
+        {task.title}
+    </Column>
+    <Column name="status" label="Status">
+        {task.status}
+    </Column>
+</Table>

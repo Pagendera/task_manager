@@ -59,7 +59,8 @@ defmodule TaskManager.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
-      {:moon, "~> 2.81"}
+      {:moon, "~> 2.81"},
+      {:ecto_enum, "~> 1.4"}
     ]
   end
 
