@@ -8,6 +8,7 @@ defmodule TaskManager.Tasks do
   def list_tasks(filters \\ %{}) do
     Task
     |> filter_by_status(filters["status"])
+    |> order_by([t], desc: t.status)
     |> Repo.all()
   end
 
@@ -28,6 +29,12 @@ defmodule TaskManager.Tasks do
       nil -> {:error, :not_found}
       task -> Repo.delete(task)
     end
+  end
+
+  def update_task(%Task{} = task, attrs) do
+    task
+    |> Task.changeset(attrs)
+    |> Repo.update()
   end
 
   def change_task(attrs \\ %{}) do

@@ -18,10 +18,12 @@ defmodule TaskManagerWeb.HomeLive do
   alias TaskManager.Tasks
 
   data(create_modal_open, :boolean, default: false)
+  data(upd_modal_open, :boolean, default: false)
   data(del_modal_open, :boolean, default: false)
   data(drawer_info_open, :boolean, default: false)
   data(selected_task, :any, default: %{id: "", title: "", description: "", status: ""})
   data(form_create, :any, default: Tasks.change_task() |> to_form())
+  data(form_update, :any, default: Tasks.change_task() |> to_form())
   def mount(_params, _session, socket) do
 
     {
@@ -57,7 +59,9 @@ defmodule TaskManagerWeb.HomeLive do
     {:noreply,
       socket
       |> assign(
-        create_modal_open: false)
+        create_modal_open: false,
+        form_create: Tasks.change_task() |> to_form()
+      )
     }
   end
 
@@ -71,7 +75,8 @@ defmodule TaskManagerWeb.HomeLive do
          socket
          |> assign(
             tasks: Tasks.list_tasks() |> Enum.map(&Map.from_struct(&1)),
-            create_modal_open: false)
+            create_modal_open: false,
+            form_create: Tasks.change_task() |> to_form())
          |> put_flash(:info, "Task Created!")
         }
 
@@ -147,6 +152,79 @@ defmodule TaskManagerWeb.HomeLive do
       {:error, :not_found} ->
         {:noreply, put_flash(socket, :error, "Task not found")}
     end
+  end
+
+  def handle_event("change_status", %{"id" => task_id, "status" => status}, socket) do
+    new_status =
+      if status == "pending" do
+        "completed"
+      else
+        "pending"
+      end
+
+    task = Tasks.get_task(task_id)
+
+    case Tasks.update_task(task, %{"status" => new_status}) do
+      {:ok, _updated_task} ->
+        {:noreply, assign(socket, tasks: Tasks.list_tasks() |> Enum.map(&Map.from_struct/1))}
+
+      {:error, _changeset} ->
+        {:noreply, put_flash(socket, :error, "Error updating task status")}
+    end
+  end
+
+  def handle_event("modal_upd_open", _, socket) do
+    Modal.open("modal_update")
+
+    {:noreply,
+      socket
+      |> assign(
+        upd_modal_open: true,
+        form_update: Tasks.change_task(socket.assigns.selected_task) |> to_form
+        )
+    }
+  end
+
+  def handle_event("modal_upd_close", _, socket) do
+    Modal.close("modal_update")
+
+    {:noreply,
+      socket
+      |> assign(
+        upd_modal_open: false,
+        form_update: Tasks.change_task() |> to_form()
+      )
+    }
+  end
+
+  def handle_event("update", %{"task" => task_params}, socket) do
+    task = Tasks.get_task(socket.assigns.selected_task.id)
+
+    case Tasks.update_task(task, task_params) do
+      {:ok, updated_task} ->
+        Modal.close("modal_update")
+        Process.send_after(self(), :clear_flash, 3000)
+        {:noreply,
+         socket
+         |> assign(
+              tasks: Tasks.list_tasks() |> Enum.map(&Map.from_struct/1),
+              upd_modal_open: false,
+              selected_task: updated_task |> Map.from_struct()
+            )
+         |> put_flash(:info, "Task Updated!")}
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, form_update: to_form(changeset))}
+    end
+  end
+
+  def handle_event("validate_update", %{"task" => task_attrs}, socket) do
+    form = validate_form(task_attrs)
+
+    {:noreply,
+     assign(socket,
+       form_update: form
+     )}
   end
 
   defp validate_form(task_attrs) do
