@@ -11,6 +11,17 @@ defmodule TaskManager.Tasks do
     |> Repo.all()
   end
 
+  def create_task(attrs) do
+    %Task{}
+    |> Task.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def change_task(attrs \\ %{}) do
+    %Task{}
+    |> Task.changeset(attrs)
+  end
+
   defp filter_by_status(query, nil), do: query
   defp filter_by_status(query, status), do: query |> where([t], t.status == ^status)
 end

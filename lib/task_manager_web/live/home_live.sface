@@ -1,3 +1,6 @@
+<div class="flex flex-row border-b-[0.063rem] border-beerus pt-5 pb-4 relative gap-3">
+  <Button on_click="modal_create_open" class="bg-bulma text-goku">Add New Task</Button>
+</div>
 <Table items={task <- @tasks} selected={nil}>
     <Column name="title" label="Title">
         {task.title}
@@ -5,4 +8,44 @@
     <Column name="status" label="Status">
         {task.status}
     </Column>
+    <Column class="flex flex-row justify-end last:rounded-0">
+        <IconButton class="mr-3" icon="generic_edit" on_click="modal_upd_open" value={task.title} variant="ghost" />
+        <IconButton icon="generic_delete" on_click="modal_del_open" value={task.title} variant="ghost" />
+    </Column>
 </Table>
+<Modal id="modal_create" is_open={@create_modal_open} on_close="do_nothing">
+  <Modal.Backdrop />
+  <Modal.Panel class="w-full max-w-lg rounded-moon-s-xs">
+    <div class="border-b-[0.063rem] border-beerus pt-5 pb-4 px-6 relative">
+      <h3 class="text-moon-18 text-bulma font-medium">
+        Create New Task
+      </h3>
+      <IconButton
+        icon="controls_close"
+        variant="ghost"
+        on_click="modal_create_close"
+        class="absolute top-3 right-3"
+      />
+    </div> 
+    <div class="px-6 py-4">
+      <Form id="form-create" for={@form_create} submit="create" change="validate_create">
+        <Field field={:title} label="Title" class="mb-4">
+          <Input placeholder="Task Title" />
+        </Field>
+        <Field field={:description} label="Description">
+          <TextArea placeholder="Task Description" />
+        </Field>
+        <div class="flex gap-2 p-4 justify-end pt-2">
+          <Button variant="outline" on_click="modal_create_close" left_icon="controls_close">Cancel</Button>
+          <Button
+            type="submit"
+            left_icon="controls_plus"
+            class="bg-bulma text-goku"
+          >Create</Button>
+        </div>
+      </Form>
+    </div>
+  </Modal.Panel>
+</Modal>
+
+

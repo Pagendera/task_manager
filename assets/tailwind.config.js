@@ -13,4 +13,10 @@ module.exports = {
     "../deps/moon/lib/**/*.eex",
     "../deps/moon/assets/js/**/*.js",
   ],
+  theme: {
+    fontFamily: {
+      sigmar: ['Sigmar', 'serif'],
+      kanit:  ['Kanit', 'serif']
+    },
+  }
 };
