@@ -11,12 +11,15 @@ defmodule TaskManagerWeb.HomeLive do
     Form.Field,
     Form.Input,
     Form.TextArea,
-    Modal
+    Modal,
+    Drawer
   }
 
   alias TaskManager.Tasks
 
   data(create_modal_open, :boolean, default: false)
+  data(drawer_info_open, :boolean, default: false)
+  data(selected_task, :any, default: %{title: "", description: "", status: ""})
   data(form_create, :any, default: Tasks.change_task() |> to_form())
   def mount(_params, _session, socket) do
 
@@ -83,6 +86,25 @@ defmodule TaskManagerWeb.HomeLive do
      assign(socket,
        form_create: form
      )}
+  end
+
+  def handle_event("drawer_info_open", %{"value" => selected}, socket) do
+    Drawer.open("drawer_info")
+
+    {:noreply,
+     assign(socket,
+       selected_task: Tasks.get_task(selected) |> Map.from_struct(),
+       drawer_info_open: true
+     )}
+  end
+
+  def handle_event("drawer_info_close", _, socket) do
+    Drawer.close("drawer_info")
+    {:noreply,
+      assign(socket,
+        drawer_info_open: false,
+        selected_task: %{title: "", description: "", status: ""}
+      )}
   end
 
   defp validate_form(task_attrs) do

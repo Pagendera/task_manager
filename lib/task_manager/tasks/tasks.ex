@@ -11,6 +11,10 @@ defmodule TaskManager.Tasks do
     |> Repo.all()
   end
 
+  def get_task(id) do
+    Repo.get(Task, id)
+  end
+
   def create_task(attrs) do
     %Task{}
     |> Task.changeset(attrs)

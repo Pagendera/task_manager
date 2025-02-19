@@ -9,8 +9,9 @@
         {task.status}
     </Column>
     <Column class="flex flex-row justify-end last:rounded-0">
-        <IconButton class="mr-3" icon="generic_edit" on_click="modal_upd_open" value={task.title} variant="ghost" />
-        <IconButton icon="generic_delete" on_click="modal_del_open" value={task.title} variant="ghost" />
+        <IconButton icon="generic_edit" on_click="modal_upd_open" value={task.title} variant="ghost" />
+        <IconButton class="ml-3 mr-3" icon="generic_delete" on_click="modal_del_open" value={task.title} variant="ghost" />
+        <IconButton icon="generic_info" on_click="drawer_info_open" value={task.id} variant="ghost" />
     </Column>
 </Table>
 <Modal id="modal_create" is_open={@create_modal_open} on_close="do_nothing">
@@ -47,5 +48,27 @@
     </div>
   </Modal.Panel>
 </Modal>
+<Drawer id="drawer_info" is_open={@drawer_info_open} on_close="do_nothing">
+  <Drawer.Panel>
+    <div class="border-b-[0.063rem] border-beerus pt-5 pb-4 px-6 relative">
+      <h3 class="text-moon-18 text-bulma font-medium">Task Info</h3>
+      <IconButton
+        icon="controls_close"
+        variant="ghost"
+        on_click="drawer_info_close"
+        class="absolute top-3 right-5"
+      />
+    </div>
+    <div class="px-6 py-4">
+        <p class="text-lg">Title:</p>
+        <p class="mb-4">{@selected_task.title}</p>
+        <p class="text-lg">Description:</p>
+        <p class="mb-4">{@selected_task.description}</p>
+        <p class="text-lg">Status:</p>
+        <p class="mb-4">{@selected_task.status}</p>
+    </div>
+  </Drawer.Panel>
+  <Drawer.Backdrop />
+</Drawer>
 
 
