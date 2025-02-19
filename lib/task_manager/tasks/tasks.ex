@@ -21,6 +21,15 @@ defmodule TaskManager.Tasks do
     |> Repo.insert()
   end
 
+  def delete_task(id) do
+    id
+    |> get_task()
+    |> case do
+      nil -> {:error, :not_found}
+      task -> Repo.delete(task)
+    end
+  end
+
   def change_task(attrs \\ %{}) do
     %Task{}
     |> Task.changeset(attrs)

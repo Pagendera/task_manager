@@ -18,8 +18,9 @@ defmodule TaskManagerWeb.HomeLive do
   alias TaskManager.Tasks
 
   data(create_modal_open, :boolean, default: false)
+  data(del_modal_open, :boolean, default: false)
   data(drawer_info_open, :boolean, default: false)
-  data(selected_task, :any, default: %{title: "", description: "", status: ""})
+  data(selected_task, :any, default: %{id: "", title: "", description: "", status: ""})
   data(form_create, :any, default: Tasks.change_task() |> to_form())
   def mount(_params, _session, socket) do
 
@@ -103,8 +104,49 @@ defmodule TaskManagerWeb.HomeLive do
     {:noreply,
       assign(socket,
         drawer_info_open: false,
-        selected_task: %{title: "", description: "", status: ""}
+        selected_task: %{id: "", title: "", description: "", status: ""}
       )}
+  end
+
+  def handle_event("modal_del_open", %{"value" => task_id}, socket) do
+    Modal.open("modal_delete")
+
+    {:noreply,
+      socket
+      |> assign(
+        del_modal_open: true,
+        selected_task: Tasks.get_task(task_id) |> Map.from_struct()
+      )
+    }
+  end
+
+  def handle_event("modal_del_close", _, socket) do
+    Modal.close("modal_delete")
+
+    {:noreply,
+      socket
+      |> assign(
+        del_modal_open: false,
+        selected_task: %{id: "", title: "", description: "", status: ""}
+      )
+    }
+  end
+
+  def handle_event("delete", %{"value" => task_id}, socket) do
+    Process.send_after(self(), :clear_flash, 3000)
+    Modal.close("modal_delete")
+
+    case Tasks.delete_task(task_id) do
+      {:ok, _} ->
+        {:noreply,
+          assign(socket,
+            tasks: Tasks.list_tasks() |> Enum.map(&Map.from_struct(&1)),
+            del_modal_open: false
+          ) |> put_flash(:info, "Task Deleted!")
+        }
+      {:error, :not_found} ->
+        {:noreply, put_flash(socket, :error, "Task not found")}
+    end
   end
 
   defp validate_form(task_attrs) do
