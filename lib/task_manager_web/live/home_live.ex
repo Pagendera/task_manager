@@ -12,7 +12,8 @@ defmodule TaskManagerWeb.HomeLive do
     Form.Input,
     Form.TextArea,
     Modal,
-    Drawer
+    Drawer,
+    Dropdown
   }
 
   alias TaskManager.Tasks
@@ -21,6 +22,7 @@ defmodule TaskManagerWeb.HomeLive do
   data(upd_modal_open, :boolean, default: false)
   data(del_modal_open, :boolean, default: false)
   data(drawer_info_open, :boolean, default: false)
+  data(status_filter, :string, default: "All")
   data(selected_task, :any, default: %{id: "", title: "", description: "", status: ""})
   data(form_create, :any, default: Tasks.change_task() |> to_form())
   data(form_update, :any, default: Tasks.change_task() |> to_form())
@@ -43,13 +45,28 @@ defmodule TaskManagerWeb.HomeLive do
     {:noreply, socket}
   end
 
+  def handle_event("on_change_status_filter", %{"value" => status_filter}, socket) do
+    Dropdown.close("status_dropdown")
+
+    tasks = Tasks.list_tasks(%{"status" => status_filter})
+
+    {:noreply,
+      socket
+      |> assign(
+        status_filter: status_filter,
+        tasks: tasks |> Enum.map(&Map.from_struct(&1))
+        )
+    }
+  end
+
   def handle_event("modal_create_open", _, socket) do
     Modal.open("modal_create")
 
     {:noreply,
       socket
       |> assign(
-        create_modal_open: true)
+        create_modal_open: true
+        )
     }
   end
 
@@ -74,7 +91,7 @@ defmodule TaskManagerWeb.HomeLive do
         {:noreply,
          socket
          |> assign(
-            tasks: Tasks.list_tasks() |> Enum.map(&Map.from_struct(&1)),
+            tasks: Tasks.list_tasks(%{"status" => socket.assigns.status_filter}) |> Enum.map(&Map.from_struct(&1)),
             create_modal_open: false,
             form_create: Tasks.change_task() |> to_form())
          |> put_flash(:info, "Task Created!")
@@ -145,7 +162,7 @@ defmodule TaskManagerWeb.HomeLive do
       {:ok, _} ->
         {:noreply,
           assign(socket,
-            tasks: Tasks.list_tasks() |> Enum.map(&Map.from_struct(&1)),
+            tasks: Tasks.list_tasks(%{"status" => socket.assigns.status_filter}) |> Enum.map(&Map.from_struct(&1)),
             del_modal_open: false
           ) |> put_flash(:info, "Task Deleted!")
         }
@@ -166,7 +183,7 @@ defmodule TaskManagerWeb.HomeLive do
 
     case Tasks.update_task(task, %{"status" => new_status}) do
       {:ok, _updated_task} ->
-        {:noreply, assign(socket, tasks: Tasks.list_tasks() |> Enum.map(&Map.from_struct/1))}
+        {:noreply, assign(socket, tasks: Tasks.list_tasks(%{"status" => socket.assigns.status_filter}) |> Enum.map(&Map.from_struct/1))}
 
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, "Error updating task status")}
@@ -207,7 +224,7 @@ defmodule TaskManagerWeb.HomeLive do
         {:noreply,
          socket
          |> assign(
-              tasks: Tasks.list_tasks() |> Enum.map(&Map.from_struct/1),
+              tasks: Tasks.list_tasks(%{"status" => socket.assigns.status_filter}) |> Enum.map(&Map.from_struct/1),
               upd_modal_open: false,
               selected_task: updated_task |> Map.from_struct()
             )

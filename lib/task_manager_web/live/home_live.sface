@@ -1,4 +1,17 @@
 <div class="flex flex-row border-b-[0.063rem] border-beerus pt-5 pb-4 relative gap-3">
+  <Dropdown id="status_dropdown">
+    <Dropdown.Options
+      class="w-auto"
+      titles={["All", "pending", "completed"]}
+      on_change="on_change_status_filter"
+    />
+    <Dropdown.Trigger :let={is_open: is_open}>
+      <Button variant="outline" class="bg-gohan text-zeno">
+        {@status_filter}
+        <Moon.Icons.ControlsChevronDown class={"text-trunks text-moon-16 transition-transform transition-200", "rotate-180": is_open} />
+      </Button>
+    </Dropdown.Trigger>
+  </Dropdown>
   <Button on_click="modal_create_open" class="bg-bulma text-goku">Add New Task</Button>
 </div>
 <Table items={task <- @tasks} selected={nil}>

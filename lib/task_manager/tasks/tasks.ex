@@ -43,5 +43,6 @@ defmodule TaskManager.Tasks do
   end
 
   defp filter_by_status(query, nil), do: query
+  defp filter_by_status(query, "All"), do: query
   defp filter_by_status(query, status), do: query |> where([t], t.status == ^status)
 end

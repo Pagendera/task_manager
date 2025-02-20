@@ -20,9 +20,13 @@ defmodule TaskManager.Tasks.Task do
   end
 
   defp put_default_status(changeset) do
-    case get_change(changeset, :status) do
-      nil -> put_change(changeset, :status, :pending)
-      _ -> changeset
+    if changeset.data.id == nil do
+      case get_change(changeset, :status) do
+        nil -> put_change(changeset, :status, :pending)
+        _ -> changeset
+      end
+    else
+      changeset
     end
   end
 end
