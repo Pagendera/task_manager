@@ -12,6 +12,7 @@ defmodule TaskManager.Application do
       TaskManager.Repo,
       {DNSCluster, query: Application.get_env(:task_manager, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: TaskManager.PubSub},
+      TaskManagerWeb.Utils.Presence,
       # Start the Finch HTTP client for sending emails
       {Finch, name: TaskManager.Finch},
       # Start a worker by calling: TaskManager.Worker.start_link(arg)

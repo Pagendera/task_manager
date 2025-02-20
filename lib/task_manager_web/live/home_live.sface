@@ -1,147 +1,154 @@
-<div class="flex flex-row border-b-[0.063rem] border-beerus pt-5 pb-4 relative gap-3">
-  <Dropdown id="status_dropdown">
-    <Dropdown.Options
-      class="w-auto"
-      titles={["All", "pending", "completed"]}
-      on_change="on_change_status_filter"
-    />
-    <Dropdown.Trigger :let={is_open: is_open}>
-      <Button variant="outline" class="bg-gohan text-zeno">
-        {@status_filter}
-        <Moon.Icons.ControlsChevronDown class={"text-trunks text-moon-16 transition-transform transition-200", "rotate-180": is_open} />
-      </Button>
-    </Dropdown.Trigger>
-  </Dropdown>
-  <Button on_click="modal_create_open" class="bg-bulma text-goku">Add New Task</Button>
-</div>
-<Table items={task <- @tasks} selected={nil}>
-    <Column name="title" label="Title">
-        {task.title}
-    </Column>
-    <Column name="status" label="Status">
-        {task.status}
-    </Column>
-    <Column class="flex flex-row justify-end last:rounded-0">
-        <IconButton
-        icon={if task.status == :pending, do: "generic_check_alternative", else: "generic_partners"}
-        on_click="change_status"
-        values={id: task.id, status: task.status}
-        variant="ghost"
+<header class="p-8 border-b flex justify-between items-center">
+  <h1 class="text-3xl font-medium font-sigmar">Task Manager</h1>
+  <p class="text-2xl font-kanit">Users online: {@users_online}</p>
+</header>
+<main class="px-4 py-20 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-2xl font-kanit">
+    <div class="flex flex-row border-b-[0.063rem] border-beerus pt-5 pb-4 relative gap-3">
+      <Dropdown id="status_dropdown">
+        <Dropdown.Options
+          class="w-auto"
+          titles={["All", "pending", "completed"]}
+          on_change="on_change_status_filter"
         />
-        <IconButton class="ml-3 mr-3" icon="generic_delete" on_click="modal_del_open" value={task.id} variant="ghost" />
-        <IconButton icon="generic_info" on_click="drawer_info_open" value={task.id} variant="ghost" />
-    </Column>
-</Table>
-<Modal id="modal_create" is_open={@create_modal_open} on_close="do_nothing">
-  <Modal.Backdrop />
-  <Modal.Panel class="w-full max-w-lg rounded-moon-s-xs">
-    <div class="border-b-[0.063rem] border-beerus pt-5 pb-4 px-6 relative">
-      <h3 class="text-moon-18 text-bulma font-medium">
-        Create New Task
-      </h3>
-      <IconButton
-        icon="controls_close"
-        variant="ghost"
-        on_click="modal_create_close"
-        class="absolute top-3 right-3"
-      />
-    </div> 
-    <div class="px-6 py-4">
-      <Form id="form-create" for={@form_create} submit="create" change="validate_create">
-        <Field field={:title} label="Title" class="mb-4">
-          <Input placeholder="Task Title" />
-        </Field>
-        <Field field={:description} label="Description">
-          <TextArea placeholder="Task Description" />
-        </Field>
-        <div class="flex gap-2 p-4 justify-end pt-2">
-          <Button variant="outline" on_click="modal_create_close" left_icon="controls_close">Cancel</Button>
-          <Button
-            type="submit"
-            left_icon="controls_plus"
-            class="bg-bulma text-goku"
-          >Create</Button>
-        </div>
-      </Form>
+        <Dropdown.Trigger :let={is_open: is_open}>
+          <Button variant="outline" class="bg-gohan text-zeno">
+            {@status_filter}
+            <Moon.Icons.ControlsChevronDown class={"text-trunks text-moon-16 transition-transform transition-200", "rotate-180": is_open} />
+          </Button>
+        </Dropdown.Trigger>
+      </Dropdown>
+      <Button on_click="modal_create_open" class="bg-bulma text-goku">Add New Task</Button>
     </div>
-  </Modal.Panel>
-</Modal>
-<Drawer id="drawer_info" is_open={@drawer_info_open} on_close="do_nothing">
-  <Drawer.Panel>
-    <div class="border-b-[0.063rem] border-beerus pt-5 pb-4 px-6 relative">
-      <h3 class="text-moon-18 text-bulma font-medium">Task Info</h3>
-      <IconButton
-        icon="controls_close"
-        variant="ghost"
-        on_click="drawer_info_close"
-        class="absolute top-3 right-5"
-      />
-    </div>
-    <div class="px-6 py-4">
-        <p class="text-lg">Title:</p>
-        <p class="mb-4">{@selected_task.title}</p>
-        <p class="text-lg">Description:</p>
-        <p class="mb-4">{@selected_task.description}</p>
-        <p class="text-lg">Status:</p>
-        <p class="mb-4">{@selected_task.status}</p>
-    </div>
-    <div class="flex justify-end px-5">
-        <Button
-            on_click="modal_upd_open"
-            left_icon="generic_edit"
-            class="bg-bulma text-goku"
-          >Edit</Button>
-    </div>
-  </Drawer.Panel>
-  <Drawer.Backdrop />
-</Drawer>
-<Modal id="modal_update" is_open={@upd_modal_open} on_close="do_nothing">
-  <Modal.Backdrop />
-  <Modal.Panel class="w-full max-w-lg rounded-moon-s-xs">
-    <div class="border-b-[0.063rem] border-beerus pt-5 pb-4 px-6 relative">
-      <h3 class="text-moon-18 text-bulma font-medium">
-        Edit Task
-      </h3>
-      <IconButton
-        icon="controls_close"
-        variant="ghost"
-        on_click="modal_upd_close"
-        class="absolute top-3 right-3"
-      />
-    </div> 
-    <div class="px-6 py-4">
-      <Form id="form-create" for={@form_update} submit="update" change="validate_update">
-        <Field field={:title} label="Title" class="mb-4">
-          <Input placeholder="Task Title" />
-        </Field>
-        <Field field={:description} label="Description">
-          <TextArea placeholder="Task Description" />
-        </Field>
-        <div class="flex gap-2 p-4 justify-end pt-2">
-          <Button variant="outline" on_click="modal_upd_close" left_icon="controls_close">Cancel</Button>
-          <Button
-            type="submit"
-            left_icon="generic_edit"
-            class="bg-bulma text-goku"
-          >Edit</Button>
-        </div>
-      </Form>
-    </div>
-  </Modal.Panel>
-</Modal>
-<Modal id="modal_delete" is_open={@del_modal_open} on_close="do_nothing">
-    <Modal.Backdrop />
-    <Modal.Panel>
+    <Table items={task <- @tasks} selected={nil}>
+        <Column name="title" label="Title">
+            {task.title}
+        </Column>
+        <Column name="status" label="Status">
+            {task.status}
+        </Column>
+        <Column class="flex flex-row justify-end last:rounded-0">
+            <IconButton
+            icon={if task.status == :pending, do: "generic_check_alternative", else: "generic_partners"}
+            on_click="change_status"
+            values={id: task.id, status: task.status}
+            variant="ghost"
+            />
+            <IconButton class="ml-3 mr-3" icon="generic_delete" on_click="modal_del_open" value={task.id} variant="ghost" />
+            <IconButton icon="generic_info" on_click="drawer_info_open" value={task.id} variant="ghost" />
+        </Column>
+    </Table>
+    <Modal id="modal_create" is_open={@create_modal_open} on_close="do_nothing">
+      <Modal.Backdrop />
+      <Modal.Panel class="w-full max-w-lg rounded-moon-s-xs">
         <div class="border-b-[0.063rem] border-beerus pt-5 pb-4 px-6 relative">
-            <h3 class="text-moon-18 text-bulma font-medium">
-                Delete Task {@selected_task.title}?
-            </h3>
+          <h3 class="text-moon-18 text-bulma font-medium">
+            Create New Task
+          </h3>
+          <IconButton
+            icon="controls_close"
+            variant="ghost"
+            on_click="modal_create_close"
+            class="absolute top-3 right-3"
+          />
+        </div> 
+        <div class="px-6 py-4">
+          <Form id="form-create" for={@form_create} submit="create" change="validate_create">
+            <Field field={:title} label="Title" class="mb-4">
+              <Input placeholder="Task Title" />
+            </Field>
+            <Field field={:description} label="Description">
+              <TextArea placeholder="Task Description" />
+            </Field>
+            <div class="flex gap-2 p-4 justify-end pt-2">
+              <Button variant="outline" on_click="modal_create_close" left_icon="controls_close">Cancel</Button>
+              <Button
+                type="submit"
+                left_icon="controls_plus"
+                class="bg-bulma text-goku"
+              >Create</Button>
+            </div>
+          </Form>
         </div>
-        <div class="flex gap-2 p-4 justify-end pt-2">
-            <Button variant="outline" on_click="modal_del_close" left_icon="controls_close">Cancel</Button>
-            <Button on_click="delete" left_icon="generic_delete" value={@selected_task.id} class="bg-bulma text-goku">Delete</Button>
+      </Modal.Panel>
+    </Modal>
+    <Drawer id="drawer_info" is_open={@drawer_info_open} on_close="do_nothing">
+      <Drawer.Panel>
+        <div class="border-b-[0.063rem] border-beerus pt-5 pb-4 px-6 relative">
+          <h3 class="text-moon-18 text-bulma font-medium">Task Info</h3>
+          <IconButton
+            icon="controls_close"
+            variant="ghost"
+            on_click="drawer_info_close"
+            class="absolute top-3 right-5"
+          />
         </div>
-    </Modal.Panel>
-</Modal>
-
+        <div class="px-6 py-4">
+            <p class="text-lg">Title:</p>
+            <p class="mb-4">{@selected_task.title}</p>
+            <p class="text-lg">Description:</p>
+            <p class="mb-4">{@selected_task.description}</p>
+            <p class="text-lg">Status:</p>
+            <p class="mb-4">{@selected_task.status}</p>
+        </div>
+        <div class="flex justify-end px-5">
+            <Button
+                on_click="modal_upd_open"
+                left_icon="generic_edit"
+                class="bg-bulma text-goku"
+              >Edit</Button>
+        </div>
+      </Drawer.Panel>
+      <Drawer.Backdrop />
+    </Drawer>
+    <Modal id="modal_update" is_open={@upd_modal_open} on_close="do_nothing">
+      <Modal.Backdrop />
+      <Modal.Panel class="w-full max-w-lg rounded-moon-s-xs">
+        <div class="border-b-[0.063rem] border-beerus pt-5 pb-4 px-6 relative">
+          <h3 class="text-moon-18 text-bulma font-medium">
+            Edit Task
+          </h3>
+          <IconButton
+            icon="controls_close"
+            variant="ghost"
+            on_click="modal_upd_close"
+            class="absolute top-3 right-3"
+          />
+        </div> 
+        <div class="px-6 py-4">
+          <Form id="form-create" for={@form_update} submit="update" change="validate_update">
+            <Field field={:title} label="Title" class="mb-4">
+              <Input placeholder="Task Title" />
+            </Field>
+            <Field field={:description} label="Description">
+              <TextArea placeholder="Task Description" />
+            </Field>
+            <div class="flex gap-2 p-4 justify-end pt-2">
+              <Button variant="outline" on_click="modal_upd_close" left_icon="controls_close">Cancel</Button>
+              <Button
+                type="submit"
+                left_icon="generic_edit"
+                class="bg-bulma text-goku"
+              >Edit</Button>
+            </div>
+          </Form>
+        </div>
+      </Modal.Panel>
+    </Modal>
+    <Modal id="modal_delete" is_open={@del_modal_open} on_close="do_nothing">
+        <Modal.Backdrop />
+        <Modal.Panel>
+            <div class="border-b-[0.063rem] border-beerus pt-5 pb-4 px-6 relative">
+                <h3 class="text-moon-18 text-bulma font-medium">
+                    Delete Task {@selected_task.title}?
+                </h3>
+            </div>
+            <div class="flex gap-2 p-4 justify-end pt-2">
+                <Button variant="outline" on_click="modal_del_close" left_icon="controls_close">Cancel</Button>
+                <Button on_click="delete" left_icon="generic_delete" value={@selected_task.id} class="bg-bulma text-goku">Delete</Button>
+            </div>
+        </Modal.Panel>
+    </Modal>
+  </div>
+</main>
 

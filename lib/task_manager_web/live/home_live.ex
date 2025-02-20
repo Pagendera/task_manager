@@ -16,8 +16,8 @@ defmodule TaskManagerWeb.HomeLive do
     Dropdown
   }
 
-  alias TaskManager.Tasks
-  alias TaskManager.Users
+  alias TaskManager.{Tasks, Users}
+  alias TaskManagerWeb.Utils.Presence
 
   data(create_modal_open, :boolean, default: false)
   data(upd_modal_open, :boolean, default: false)
@@ -29,14 +29,32 @@ defmodule TaskManagerWeb.HomeLive do
   data(form_update, :any, default: Tasks.change_task() |> to_form())
   def mount(_params, session, socket) do
 
+    if connected?(socket) do
+      user = Users.get_user_by_session_token(session["user_token"])
+      Presence.track(self(), "home_live", user.id, %{})
+      Phoenix.PubSub.subscribe(TaskManager.PubSub, "tasks")
+    end
+
+    users_online = Presence.list("home_live") |> map_size()
+
     {
       :ok,
       socket
       |> assign(
         tasks: Tasks.list_tasks() |> Enum.map(&(Map.from_struct(&1))),
-        current_user: Users.get_user_by_session_token(session["user_token"])
+        current_user: Users.get_user_by_session_token(session["user_token"]),
+        users_online: users_online
       )
     }
+  end
+
+  def handle_info({:task_list_changed}, socket) do
+    {:noreply, assign(socket, tasks: Tasks.list_tasks(%{"status" => socket.assigns.status_filter}) |> Enum.map(&Map.from_struct(&1)))}
+  end
+
+  def handle_info({:presence_diff, _diff}, socket) do
+    users_online = Presence.list("home_live") |> map_size()
+    {:noreply, assign(socket, users_online: users_online)}
   end
 
   def handle_info(:clear_flash, socket) do
@@ -87,6 +105,7 @@ defmodule TaskManagerWeb.HomeLive do
   def handle_event("create", %{"task" => task_params}, socket) do
     case Tasks.create_task(task_params) do
       {:ok, _task} ->
+        Phoenix.PubSub.broadcast(TaskManager.PubSub, "tasks", {:task_list_changed})
         Modal.close("modal_create")
         Process.send_after(self(), :clear_flash, 3000)
 
@@ -162,6 +181,7 @@ defmodule TaskManagerWeb.HomeLive do
 
     case Tasks.delete_task(task_id) do
       {:ok, _} ->
+        Phoenix.PubSub.broadcast(TaskManager.PubSub, "tasks", {:task_list_changed})
         {:noreply,
           assign(socket,
             tasks: Tasks.list_tasks(%{"status" => socket.assigns.status_filter}) |> Enum.map(&Map.from_struct(&1)),
@@ -185,6 +205,7 @@ defmodule TaskManagerWeb.HomeLive do
 
     case Tasks.update_task(task, %{"status" => new_status}) do
       {:ok, _updated_task} ->
+        Phoenix.PubSub.broadcast(TaskManager.PubSub, "tasks", {:task_list_changed})
         {:noreply, assign(socket, tasks: Tasks.list_tasks(%{"status" => socket.assigns.status_filter}) |> Enum.map(&Map.from_struct/1))}
 
       {:error, _changeset} ->
@@ -221,6 +242,7 @@ defmodule TaskManagerWeb.HomeLive do
 
     case Tasks.update_task(task, task_params) do
       {:ok, updated_task} ->
+        Phoenix.PubSub.broadcast(TaskManager.PubSub, "tasks", {:task_list_changed})
         Modal.close("modal_update")
         Process.send_after(self(), :clear_flash, 3000)
         {:noreply,
