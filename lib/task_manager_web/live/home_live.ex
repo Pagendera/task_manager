@@ -17,6 +17,7 @@ defmodule TaskManagerWeb.HomeLive do
   }
 
   alias TaskManager.Tasks
+  alias TaskManager.Users
 
   data(create_modal_open, :boolean, default: false)
   data(upd_modal_open, :boolean, default: false)
@@ -26,13 +27,14 @@ defmodule TaskManagerWeb.HomeLive do
   data(selected_task, :any, default: %{id: "", title: "", description: "", status: ""})
   data(form_create, :any, default: Tasks.change_task() |> to_form())
   data(form_update, :any, default: Tasks.change_task() |> to_form())
-  def mount(_params, _session, socket) do
+  def mount(_params, session, socket) do
 
     {
       :ok,
       socket
       |> assign(
-        tasks: Tasks.list_tasks() |> Enum.map(&(Map.from_struct(&1)))
+        tasks: Tasks.list_tasks() |> Enum.map(&(Map.from_struct(&1))),
+        current_user: Users.get_user_by_session_token(session["user_token"])
       )
     }
   end

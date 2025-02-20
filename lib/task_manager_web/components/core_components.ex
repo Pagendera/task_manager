@@ -660,9 +660,9 @@ defmodule TaskManagerWeb.CoreComponents do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(MySuperAppWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(TaskManagerWeb.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(MySuperAppWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(TaskManagerWeb.Gettext, "errors", msg, opts)
     end
   end
 
