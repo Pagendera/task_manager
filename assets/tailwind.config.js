@@ -6,6 +6,7 @@ module.exports = {
     "../lib/**/*.eex",
     "./js/**/*.js",
     "../lib/**/pages/*.sface",
+    "../lib/**/live/*.sface",
     "../lib/**/pages/*.ex",
 
     "../deps/moon/lib/**/*.ex",
