@@ -31,11 +31,12 @@ defmodule TaskManagerWeb.HomeLive do
 
     if connected?(socket) do
       user = Users.get_user_by_session_token(session["user_token"])
-      Presence.track(self(), "home_live", user.id, %{})
+      Presence.track(self(), "users", user.id, %{})
       Phoenix.PubSub.subscribe(TaskManager.PubSub, "tasks")
+      Phoenix.PubSub.subscribe(TaskManager.PubSub, "users")
     end
 
-    users_online = Presence.list("home_live") |> map_size()
+    users_online = Presence.list("users") |> map_size()
 
     {
       :ok,
@@ -52,8 +53,8 @@ defmodule TaskManagerWeb.HomeLive do
     {:noreply, assign(socket, tasks: Tasks.list_tasks(%{"status" => socket.assigns.status_filter}) |> Enum.map(&Map.from_struct(&1)))}
   end
 
-  def handle_info({:presence_diff, _diff}, socket) do
-    users_online = Presence.list("home_live") |> map_size()
+  def handle_info(%{event: "presence_diff", topic: topic}, socket) do
+    users_online = Presence.list(topic) |> map_size()
     {:noreply, assign(socket, users_online: users_online)}
   end
 
