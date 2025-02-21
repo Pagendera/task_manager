@@ -74,16 +74,12 @@ defmodule TaskManager.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "ecto.setup", "assets.setup"],
+      setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      "assets.setup": [
-        "cmd --cd assets npm i",
-        "cmd --cd deps/moon/assets npm i",
-        "esbuild.install --if-missing"
-      ],
       "assets.build": ["cmd --cd assets npm run build", "esbuild default"],
+      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      "assets.setup": ["cmd --cd assets npm i", "cmd --cd deps/moon/assets npm i", "esbuild.install --if-missing"],
       "assets.deploy": [
         "assets.setup",
         "assets.build",
