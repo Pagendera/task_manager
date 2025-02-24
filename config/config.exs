@@ -15,6 +15,10 @@ if File.exists?("#{moon_config_path}") do
 
 
 config :surface, :components, [
+  {Moon.Design.Tooltip.Content, propagate_context_to_slots: true},
+  {Moon.Parts.Chart.Field, propagate_context_to_slots: true},
+  {Moon.Parts.Header, propagate_context_to_slots: true},
+  {TaskManagerWeb.DrawerComponent, propagate_context_to_slots: true}
 ]
 
 config :esbuild,
