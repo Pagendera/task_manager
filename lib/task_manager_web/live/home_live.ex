@@ -25,7 +25,7 @@ defmodule TaskManagerWeb.HomeLive do
   data(drawer_info_open, :boolean, default: false)
   data(status_filter, :string, default: "All")
   data(selected_task, :any, default: %{id: "", title: "", description: "", status: ""})
-  data(form_create, :any, default: Tasks.change_task() |> to_form())
+  data(form_create, :any, default: Tasks.change_task() |> Map.put(:errors, []) |> to_form())
   data(form_update, :any, default: Tasks.change_task() |> to_form())
   def mount(_params, session, socket) do
 
@@ -98,7 +98,7 @@ defmodule TaskManagerWeb.HomeLive do
       socket
       |> assign(
         create_modal_open: false,
-        form_create: Tasks.change_task() |> to_form()
+        form_create: Tasks.change_task() |> Map.put(:errors, []) |> to_form()
       )
     }
   end
@@ -115,7 +115,7 @@ defmodule TaskManagerWeb.HomeLive do
          |> assign(
             tasks: Tasks.list_tasks(%{"status" => socket.assigns.status_filter}) |> Enum.map(&Map.from_struct(&1)),
             create_modal_open: false,
-            form_create: Tasks.change_task() |> to_form())
+            form_create: Tasks.change_task() |> Map.put(:errors, []) |> to_form())
          |> put_flash(:info, "Task Created!")
         }
 
