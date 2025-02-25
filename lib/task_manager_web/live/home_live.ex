@@ -108,7 +108,7 @@ defmodule TaskManagerWeb.HomeLive do
       {:ok, _task} ->
         Phoenix.PubSub.broadcast(TaskManager.PubSub, "tasks", {:task_list_changed})
         Modal.close("modal_create")
-        Process.send_after(self(), :clear_flash, 3000)
+        Process.send_after(self(), :clear_flash, 1500)
 
         {:noreply,
          socket
@@ -177,7 +177,7 @@ defmodule TaskManagerWeb.HomeLive do
   end
 
   def handle_event("delete", %{"value" => task_id}, socket) do
-    Process.send_after(self(), :clear_flash, 3000)
+    Process.send_after(self(), :clear_flash, 1500)
     Modal.close("modal_delete")
 
     case Tasks.delete_task(task_id) do
@@ -245,7 +245,7 @@ defmodule TaskManagerWeb.HomeLive do
       {:ok, updated_task} ->
         Phoenix.PubSub.broadcast(TaskManager.PubSub, "tasks", {:task_list_changed})
         Modal.close("modal_update")
-        Process.send_after(self(), :clear_flash, 3000)
+        Process.send_after(self(), :clear_flash, 1500)
         {:noreply,
          socket
          |> assign(

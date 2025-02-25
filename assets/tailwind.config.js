@@ -16,7 +16,6 @@ module.exports = {
   ],
   theme: {
     fontFamily: {
-      sigmar: ['Sigmar', 'serif'],
       kanit:  ['Kanit', 'serif']
     },
   }
