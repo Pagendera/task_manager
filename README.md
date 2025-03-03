@@ -39,7 +39,8 @@ The application is deployed and accessible online at: https://task-manager-pariy
 
 ## Preview
 
-[task_manager_pariy.webm](https://github.com/user-attachments/assets/5e3d4a12-f554-487d-b8c7-e423f8af16b7)
+[task_manager_pariy.webm](https://github.com/user-attachments/assets/292c7220-1816-4fac-8888-05bc730b6843)
+
 
 
 ## Notes
