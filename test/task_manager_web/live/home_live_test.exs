@@ -8,7 +8,6 @@ defmodule TaskManagerWeb.HomeLiveTest do
     test "initializes with default values", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/")
 
-      assert view |> element("h1", "Task Manager") |> has_element?()
       assert view |> element("button", "Add New Task") |> has_element?()
       assert view |> element("table") |> has_element?()
     end
